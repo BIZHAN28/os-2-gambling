@@ -43,6 +43,7 @@ void random_write(int iterations) {
 }
 
 int main(int argc, char *argv[]) {
+    srand(time(NULL));
     if (argc != 2) {
         fprintf(stderr, "Использование: %s <количество итераций>\n", argv[0]);
         return EXIT_FAILURE;

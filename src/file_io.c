@@ -54,11 +54,17 @@ ssize_t lab2_read(int fd, void *buf, size_t count) {
     char bandit_result[13];
     one_arm_bandit(bandit_result);
     printf("🎰 Слот-машина: %s\n", bandit_result);
-	
+    char musicCommand[256];
+    char videoCommand[256];
+    
     if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
         printf("✨ Слот-машина дала удачу! Операция проходит мгновенно.\n");
+        snprintf(musicCommand, sizeof(videoCommand), "vlc --intf --play-and-exit %s &", "GAMBLECORE.mp4");
+        system(videoCommand);
     }else {
         printf("💩 Слот-машина дала неудачу! Операция будет медленной...\n");
+        snprintf(musicCommand, sizeof(musicCommand), "vlc --intf dummy --play-and-exit %s &", "dang-it.mp3");
+        system(musicCommand);
         sleep(2);
     }
 
@@ -85,11 +91,16 @@ ssize_t lab2_write(int fd, const void *buf, size_t count) {
     char bandit_result[13];
     one_arm_bandit(bandit_result);
     printf("🎰 Слот-машина: %s\n", bandit_result);
-
+    char musicCommand[256];
+    char videoCommand[256];
     if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
         printf("✨ Слот-машина дала удачу! Операция проходит мгновенно.\n");
+        snprintf(videoCommand, sizeof(videoCommand), "vlc --intf dummy --play-and-exit %s &", "GAMBLECORE.mp4");
+        system(videoCommand);
     }else {
         printf("💩 Слот-машина дала неудачу! Операция будет медленной...\n");
+        snprintf(musicCommand, sizeof(musicCommand), "vlc --intf dummy --play-and-exit %s &", "dang-it.mp3");
+        system(musicCommand);
         sleep(2);
     }
 
