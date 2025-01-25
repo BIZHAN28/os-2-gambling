@@ -23,19 +23,23 @@ int roulette() {
     return rand() % 6;
 }
 int lab2_open(const char *path) {
-	int result = roulette();
-    if (result == 5) {
+    int result = roulette();
+    if (result == 0) {
         printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
-		exit(EXIT_FAILURE);
+	exit(EXIT_FAILURE);
+    } else {
+        printf("🔫 Рулетка: А вы везунчик.\n");
     }
     return open(path, O_CREAT | O_RDWR, 0644);
 }
 
 int lab2_close(int fd) {
-	int result = roulette();
-    if (result == 5) {
+    int result = roulette();
+    if (result == 0) {
         printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
-		exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
+    } else {
+        printf("🔫 Рулетка: А вы везунчик.\n");
     }
     return close(fd);
 }
@@ -78,7 +82,7 @@ ssize_t lab2_read(int fd, void *buf, size_t count) {
 ssize_t lab2_write(int fd, const void *buf, size_t count) {
     off_t offset = lseek(fd, 0, SEEK_CUR);
 
-    char bandit_result[4];
+    char bandit_result[13];
     one_arm_bandit(bandit_result);
     printf("🎰 Слот-машина: %s\n", bandit_result);
 
@@ -102,7 +106,7 @@ ssize_t lab2_write(int fd, const void *buf, size_t count) {
 
 int lab2_fsync(int fd) {
 
-    char bandit_result[4];
+    char bandit_result[13];
     one_arm_bandit(bandit_result);
     printf("🎰 Слот-машина: %s\n", bandit_result);
     if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
