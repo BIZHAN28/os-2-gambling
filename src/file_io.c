@@ -119,6 +119,3 @@ int lab2_fsync(int fd) {
     return fsync(fd);
 }
 
-off_t lab2_lseek(int fd, off_t offset, int whence) {
-    return lseek(fd, offset, whence);
-}
