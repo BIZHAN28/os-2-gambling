@@ -1,50 +1,50 @@
-#include "file_io.h"
-#include "cache.h"
-#include <fcntl.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <string.h>
 #include <time.h>
+#include <string.h>
+#include <unistd.h>
 
-const char* one_arm_bandit() {
-    const char *symbols[] = {"💎", "💩", "🔒"};
-    int spin = rand() % 3;
-    return symbols[spin];
+const char* symbols[] = {"💎", "💩", "🔒"};
+
+void one_arm_bandit(char *result) {
+    for (int i = 0; i < 3; i++) {
+        result[i] = symbols[rand() % 3][0];
+    }
+    result[3] = '\0'; 
 }
 
 int roulette() {
-    return rand() % 36;
+    return rand() % 6;
 }
 
-int lab2_open(const char *path) {
-    printf("🎰 Крутится слот-машина: %s\n", one_arm_bandit());
-    return open(path, O_CREAT | O_RDWR, 0644);
-}
-
-int lab2_close(int fd) {
-    printf("🎰 Закрытие файла: %s\n", one_arm_bandit());
-    return close(fd);
-}
 
 ssize_t lab2_read(int fd, void *buf, size_t count) {
     off_t offset = lseek(fd, 0, SEEK_CUR);
+
+    char bandit_result[4];
+    one_arm_bandit(bandit_result);
+    printf("🎰 Слот-машина: %s\n", bandit_result);
+	
+    if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
+        printf("✨ Слот-машина дала удачу! Операция проходит мгновенно.\n");
+    }else {
+        printf("💩 Слот-машина дала неудачу! Операция будет медленной...\n");
+        sleep(2);
+    }
+
+
     CacheBlock *cached_block = cache_find(offset);
-
-    printf("🎰 Чтение данных: %s\n", one_arm_bandit());
-
     if (cached_block) {
-        memcpy(buf, cached_block->data, count); 
+        memcpy(buf, cached_block->data, count);
         cache_move_to_front(cached_block);
         return count;
     } else {
         int result = roulette();
-        if (result <= 10) { 
-            printf("🎰 Рулетка: Плохая удача! Кэш не найден, но данные будут записаны медленно.\n");
-            sleep(2);
+        if (result == 5) {
+            printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
+			exit(EXIT_FAILURE);
         }
+
         ssize_t bytes_read = read(fd, buf, count);
         if (bytes_read > 0) {
             cache_add(offset, buf);
@@ -53,33 +53,49 @@ ssize_t lab2_read(int fd, void *buf, size_t count) {
     }
 }
 
+
 ssize_t lab2_write(int fd, const void *buf, size_t count) {
     off_t offset = lseek(fd, 0, SEEK_CUR);
-    CacheBlock *cached_block = cache_find(offset);
 
-    printf("🎰 Запись данных: %s\n", one_arm_bandit());
+    char bandit_result[4];
+    one_arm_bandit(bandit_result);
+    printf("🎰 Слот-машина: %s\n", bandit_result);
 
-    if (cached_block) {
-        memcpy(cached_block->data, buf, count); 
-    } else {
-        cache_add(offset, buf);
+    if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
+        printf("✨ Слот-машина дала удачу! Операция проходит мгновенно.\n");
+    }else {
+        printf("💩 Слот-машина дала неудачу! Операция будет медленной...\n");
+        sleep(2);
     }
 
-    // Симуляция эффекта рулетки
+    CacheBlock *cached_block = cache_find(offset);
+    if (cached_block) {
+        memcpy(cached_block->data, buf, count);
+    } else {
+        cache_add(offset, buf); 
+    }
+
     int result = roulette();
-    if (result <= 10) {
-        printf("🎰 Рулетка: Плохая удача! Запись будет выполнена с ошибками.\n");
-        return -1;
+    if (result == 5) {
+        printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
+        exit(EXIT_FAILURE);
     }
 
     return write(fd, buf, count);
 }
 
-off_t lab2_lseek(int fd, off_t offset, int whence) {
-    return lseek(fd, offset, whence);
-}
 
 int lab2_fsync(int fd) {
-    printf("🎰 Синхронизация: %s\n", one_arm_bandit());
+
+    char bandit_result[4];
+    one_arm_bandit(bandit_result);
+    printf("🎰 Слот-машина: %s\n", bandit_result);
+    if (strcmp(bandit_result, "💎💎💎") == 0 || strcmp(bandit_result, "💩💩💩") == 0 || strcmp(bandit_result, "🔒🔒🔒") == 0) {
+        printf("✨ Слот-машина дала удачу! Операция проходит мгновенно.\n");
+    }else {
+        printf("💩 Слот-машина дала неудачу! Операция будет медленной...\n");
+        sleep(2);
+    }
+
     return fsync(fd);
 }
