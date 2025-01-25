@@ -3,6 +3,12 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
+#include "file_io.h"
+#include "cache.h"
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 const char* symbols[] = {"💎", "💩", "🔒"};
 
