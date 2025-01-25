@@ -42,7 +42,7 @@ void handle_slot_machine() {
         printf("💩 Неудача! Операция будет медленной...\n");
         play_media("dang-it.mp3", "dummy");
         
-        if (rand() % 10 == 0) { // 10% шанс
+        if (rand() % 10 < 5) {
             play_red_light_green_light();
         } else {
             sleep(2);
@@ -58,33 +58,30 @@ void play_red_light_green_light() {
     struct termios oldt, newt;
 
     printf("\n🚦 Игра \"Красный свет/Зелёный свет\" начинается! Пройдите 500 метров.\n");
-    printf("🔴 Красный свет - можно идти\n🟢 Зелёный свет - нельзя идти\n");
-    
-    // Настройка для чтения клавиш
+    printf("🔴 Зелёный свет - можно идти\n🟢 Красный свет - нельзя идти\n");
+
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     while (distance > 0) {
-        light_duration = 5 + rand() % 6; // Длительность света от 5 до 10 секунд
+        light_duration = 10 + rand() % 6;
         time(&light_start);
 
         printf("\n%s Свет горит %s на %d секунд.\n",
-               is_red_light ? "🔴" : "🟢",
-               is_red_light ? "красный" : "зелёный",
+               is_red_light ? "🟢" : "🔴",
+               is_red_light ? "зелёный" : "красный",
                light_duration);
 
         while (1) {
             time(&now);
 
-            // Если время текущего света истекло
-            if (difftime(now, light_start) >= light_duration) {
-                is_red_light = !is_red_light; // Меняем свет
+            if (difftime(light_start, now) >= light_duration) {
+                is_red_light = !is_red_light;
                 break;
             }
 
-            // Проверяем нажатие клавиши пробел
             if (is_red_light && getchar() == ' ') {
                 distance -= 10;
                 printf("🚶‍♂️ Вы прошли 10 метров. Осталось: %d метров.\n", distance);
@@ -100,8 +97,6 @@ void play_red_light_green_light() {
 
     printf("🎉 Поздравляем! Вы успешно прошли дистанцию.\n");
     play_media("success.mp3", "dummy");
-
-    // Возвращаем старые настройки терминала
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
