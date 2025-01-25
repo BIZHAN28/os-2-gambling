@@ -11,7 +11,6 @@
 
 const char* symbols[] = {"\U0001F48E", "\U0001F4A9", "\U0001F512"};
 
-// Генерация результата для слот-машины
 void one_arm_bandit(char *result) {
     for (int i = 0; i < 3; i++) {
         strcpy(&result[i * 4], symbols[rand() % 3]);
@@ -19,14 +18,13 @@ void one_arm_bandit(char *result) {
     result[12] = '\0';
 }
 
-// Вызов видеоплеера
+
 void play_media(const char *file, const char *intf) {
     char command[256];
-    snprintf(command, sizeof(command), "vlc --intf %s --play-and-exit %s &", intf, file);
+    snprintf(command, sizeof(command), "vlc --intf %s --play-and-exit %s > /dev/null 2>&1 &", intf, file);
     system(command);
 }
 
-// Слот-машина
 void handle_slot_machine() {
     char bandit_result[13];
     one_arm_bandit(bandit_result);
@@ -44,7 +42,7 @@ void handle_slot_machine() {
     }
 }
 
-// Русская рулетка
+
 int roulette() {
     int result = rand() % 6;
     if (result == 0) {
@@ -56,21 +54,20 @@ int roulette() {
     return result;
 }
 
-// Обертка для открытия файла
+
 int lab2_open(const char *path) {
-    roulette();  // Русская рулетка при открытии файла
+    roulette();  
     return open(path, O_CREAT | O_RDWR, 0644);
 }
 
-// Обертка для закрытия файла
+
 int lab2_close(int fd) {
-    roulette();  // Русская рулетка при закрытии файла
+    roulette();  
     return close(fd);
 }
 
-// Обертка для чтения файла
 ssize_t lab2_read(int fd, void *buf, size_t count) {
-    handle_slot_machine();  // Слот-машина перед чтением
+    handle_slot_machine();
 
     off_t offset = lseek(fd, 0, SEEK_CUR);
     CacheBlock *cached_block = cache_find(offset);
@@ -87,9 +84,9 @@ ssize_t lab2_read(int fd, void *buf, size_t count) {
     }
 }
 
-// Обертка для записи файла
+
 ssize_t lab2_write(int fd, const void *buf, size_t count) {
-    handle_slot_machine();  // Слот-машина перед записью
+    handle_slot_machine();
 
     off_t offset = lseek(fd, 0, SEEK_CUR);
     CacheBlock *cached_block = cache_find(offset);
@@ -101,9 +98,8 @@ ssize_t lab2_write(int fd, const void *buf, size_t count) {
     return write(fd, buf, count);
 }
 
-// Обертка для синхронизации файла
 int lab2_fsync(int fd) {
-    handle_slot_machine();  // Слот-машина перед синхронизацией
+    handle_slot_machine();
     return fsync(fd);
 }
 off_t lab2_lseek(int fd, off_t offset, int whence) {
