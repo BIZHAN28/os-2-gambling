@@ -50,41 +50,59 @@ void handle_slot_machine() {
     }
 }
 
-void red_light_green_light() {
-    srand(time(NULL)); // Инициализация генератора случайных чисел
-    int distance = 500; // Дистанция, которую нужно пройти
-    bool game_over = false;
+void play_red_light_green_light() {
+    int distance = 500; 
+    int light_duration;
+    int is_red_light = rand() % 2; 
+    time_t light_start, now;
+    struct termios oldt, newt;
 
-    while (!game_over) {
-        // Установка продолжительности света и типа света
-        int light_duration = 5 + rand() % 6; // От 5 до 10 секунд
-        bool is_red_light = rand() % 2 == 0; // Случайный выбор света: 0 - красный, 1 - зелёный
+    printf("\n🚦 Игра \"Красный свет/Зелёный свет\" начинается! Пройдите 500 метров.\n");
+    printf("🔴 Красный свет - можно идти\n🟢 Зелёный свет - нельзя идти\n");
+    
+    // Настройка для чтения клавиш
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-        printf("🚦 Свет: %s (продолжительность: %d секунд)\n", 
-               is_red_light ? "Красный" : "Зелёный", light_duration);
+    while (distance > 0) {
+        light_duration = 5 + rand() % 6; // Длительность света от 5 до 10 секунд
+        time(&light_start);
 
-        // Отслеживание времени света
-        for (int i = 0; i < light_duration && !game_over; i++) {
-            printf("\rОсталось пройти: %d метров | Свет: %s | Секунд до смены: %d   ", 
-                   distance, 
-                   is_red_light ? "Красный" : "Зелёный", 
-                   light_duration - i);
-            fflush(stdout);
+        printf("\n%s Свет горит %s на %d секунд.\n",
+               is_red_light ? "🔴" : "🟢",
+               is_red_light ? "красный" : "зелёный",
+               light_duration);
 
-            if (is_red_light && (getchar() == ' ')) {
-                distance -= 10; // Уменьшаем дистанцию на 10 метров
-                printf("\n✅ Вы прошли 10 метров! Осталось: %d\n", distance);
-                if (distance <= 0) {
-                    printf("\n🎉 Поздравляем! Вы добрались до финиша!\n");
-                    game_over = true;
-                }
-            } else if (!is_red_light && (getchar() == ' ')) {
-                printf("\n❌ Нарушение! Игра окончена.\n");
-                game_over = true;
+        while (1) {
+            time(&now);
+
+            // Если время текущего света истекло
+            if (difftime(now, light_start) >= light_duration) {
+                is_red_light = !is_red_light; // Меняем свет
+                break;
             }
-            sleep(1); // Ожидание 1 секунды
+
+            // Проверяем нажатие клавиши пробел
+            if (is_red_light && getchar() == ' ') {
+                distance -= 10;
+                printf("🚶‍♂️ Вы прошли 10 метров. Осталось: %d метров.\n", distance);
+                if (distance <= 0) break;
+            } else if (!is_red_light && getchar() == ' ') {
+                printf("❌ Вас заметили! Игра окончена.\n");
+                play_media("failure.mp3", "dummy");
+                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                exit(EXIT_FAILURE);
+            }
         }
     }
+
+    printf("🎉 Поздравляем! Вы успешно прошли дистанцию.\n");
+    play_media("success.mp3", "dummy");
+
+    // Возвращаем старые настройки терминала
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
 int roulette() {
