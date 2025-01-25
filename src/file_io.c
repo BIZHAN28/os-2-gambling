@@ -42,71 +42,9 @@ void handle_slot_machine() {
         printf("💩 Неудача! Операция будет медленной...\n");
         play_media("dang-it.mp3", "dummy");
         
-        if (rand() % 10 < 5) {
-            play_red_light_green_light();
-        } else {
-            sleep(2);
-        }
+        sleep(2);
     }
 }
-
-void play_red_light_green_light() {
-    int distance = 500; 
-    int light_duration;
-    int is_red_light = rand() % 2; 
-    time_t light_start, now;
-    struct termios oldt, newt;
-
-    printf("\n🚦 Игра \"Красный свет/Зелёный свет\" начинается! Пройдите 500 метров.\n");
-    printf("🔴 Зелёный свет - можно идти\n🟢 Красный свет - нельзя идти\n");
-
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
-    while (distance > 0) {
-        light_duration = 10 + rand() % 6;
-        time(&light_start);
-
-        printf("\n%s Свет горит %s на %d секунд.\n",
-               is_red_light ? "🟢" : "🔴",
-               is_red_light ? "зелёный" : "красный",
-               light_duration);
-
-        while (1) {
-            time(&now);
-            double time_left = difftime(light_start, now);
-
-            // Каждую секунду обновляем таймер
-            printf("\rВремя до смены света: %.0f секунд.", light_duration - time_left);
-            fflush(stdout);
-
-            if (time_left >= light_duration) {
-                is_red_light = !is_red_light;
-                break;
-            }
-
-            if (is_red_light && getchar() == ' ') {
-                distance -= 10;
-                printf("🚶‍♂️ Вы прошли 10 метров. Осталось: %d метров.\n", distance);
-                if (distance <= 0) break;
-            } else if (!is_red_light && getchar() == ' ') {
-                printf("\n❌ Вас заметили! Игра окончена.\n");
-                play_media("failure.mp3", "dummy");
-                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                exit(EXIT_FAILURE);
-            }
-
-            sleep(1); // Ожидание 1 секунду перед обновлением
-        }
-    }
-
-    printf("\n🎉 Поздравляем! Вы успешно прошли дистанцию.\n");
-    play_media("success.mp3", "dummy");
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-}
-
 
 int roulette() {
     int result = rand() % 6;
