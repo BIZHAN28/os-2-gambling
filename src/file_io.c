@@ -34,6 +34,9 @@ int lab2_close(int fd) {
     return close(fd);
 }
 
+off_t lab2_lseek(int fd, off_t offset, int whence) {
+    return lseek(fd, offset, whence);
+}
 
 ssize_t lab2_read(int fd, void *buf, size_t count) {
     off_t offset = lseek(fd, 0, SEEK_CUR);
