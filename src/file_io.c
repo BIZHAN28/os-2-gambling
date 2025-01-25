@@ -16,6 +16,23 @@ void one_arm_bandit(char *result) {
 int roulette() {
     return rand() % 6;
 }
+int lab2_open(const char *path) {
+	int result = roulette();
+    if (result == 5) {
+        printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
+		exit(EXIT_FAILURE);
+    }
+    return open(path, O_CREAT | O_RDWR, 0644);
+}
+
+int lab2_close(int fd) {
+	int result = roulette();
+    if (result == 5) {
+        printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
+		exit(EXIT_FAILURE);
+    }
+    return close(fd);
+}
 
 
 ssize_t lab2_read(int fd, void *buf, size_t count) {
@@ -39,11 +56,6 @@ ssize_t lab2_read(int fd, void *buf, size_t count) {
         cache_move_to_front(cached_block);
         return count;
     } else {
-        int result = roulette();
-        if (result == 5) {
-            printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
-			exit(EXIT_FAILURE);
-        }
 
         ssize_t bytes_read = read(fd, buf, count);
         if (bytes_read > 0) {
@@ -73,12 +85,6 @@ ssize_t lab2_write(int fd, const void *buf, size_t count) {
         memcpy(cached_block->data, buf, count);
     } else {
         cache_add(offset, buf); 
-    }
-
-    int result = roulette();
-    if (result == 5) {
-        printf("🔫 Рулетка: Плохая удача! Вы мертвы.\n");
-        exit(EXIT_FAILURE);
     }
 
     return write(fd, buf, count);
