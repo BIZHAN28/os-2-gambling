@@ -10,13 +10,13 @@
 #include <sys/stat.h>
 
 
-const char* symbols[] = {"💎", "💩", "🔒"};
+const char* symbols[] = {"\U0001F48E", "\U0001F4A9", "\U0001F512"};
 
 void one_arm_bandit(char *result) {
     for (int i = 0; i < 3; i++) {
-        result[i] = symbols[rand() % 3][0];
+         strcpy(&result[i * 4], symbols[rand() % 3]);
     }
-    result[3] = '\0'; 
+    result[12] = '\0'; 
 }
 
 int roulette() {
@@ -47,7 +47,7 @@ off_t lab2_lseek(int fd, off_t offset, int whence) {
 ssize_t lab2_read(int fd, void *buf, size_t count) {
     off_t offset = lseek(fd, 0, SEEK_CUR);
 
-    char bandit_result[4];
+    char bandit_result[13];
     one_arm_bandit(bandit_result);
     printf("🎰 Слот-машина: %s\n", bandit_result);
 	
