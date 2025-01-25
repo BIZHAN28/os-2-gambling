@@ -76,8 +76,13 @@ void play_red_light_green_light() {
 
         while (1) {
             time(&now);
+            double time_left = difftime(light_start, now);
 
-            if (difftime(light_start, now) >= light_duration) {
+            // Каждую секунду обновляем таймер
+            printf("\rВремя до смены света: %.0f секунд.", light_duration - time_left);
+            fflush(stdout);
+
+            if (time_left >= light_duration) {
                 is_red_light = !is_red_light;
                 break;
             }
@@ -87,18 +92,21 @@ void play_red_light_green_light() {
                 printf("🚶‍♂️ Вы прошли 10 метров. Осталось: %d метров.\n", distance);
                 if (distance <= 0) break;
             } else if (!is_red_light && getchar() == ' ') {
-                printf("❌ Вас заметили! Игра окончена.\n");
+                printf("\n❌ Вас заметили! Игра окончена.\n");
                 play_media("failure.mp3", "dummy");
                 tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
                 exit(EXIT_FAILURE);
             }
+
+            sleep(1); // Ожидание 1 секунду перед обновлением
         }
     }
 
-    printf("🎉 Поздравляем! Вы успешно прошли дистанцию.\n");
+    printf("\n🎉 Поздравляем! Вы успешно прошли дистанцию.\n");
     play_media("success.mp3", "dummy");
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
+
 
 int roulette() {
     int result = rand() % 6;
