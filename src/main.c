@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    cache_init();  // Инициализация кэша
+    cache_init();
     int iterations = atoi(argv[1]);
     random_write(iterations);
-    cache_free();  // Очистка кэша
+    cache_free();
     return EXIT_SUCCESS;
 }
